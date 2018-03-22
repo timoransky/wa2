@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Úloha č.4</title>
+
+    <style>
+        .Cell {
+            flex: 0 0 auto;
+
+            width: 35px;
+            height: 35px;
+            vertical-align: center;
+            text-align: center;
+            border: 1px solid #d0c9b1;
+            border-radius: 5px;
+            font-size: 20px;
+            font-weight: bold;
+            font-family: Arial;
+            line-height: 35px;
+            margin: 1px 1px;
+
+            background-color: yellow;
+            cursor: pointer;
+        }
+
+        .Cell_sel {
+            background-color: green;
+        }
+
+
+        .Board {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .Row {
+            flex: 0 0 auto;
+            height: 39px;
+
+            display: flex;
+        }
+    </style>
+    <script>
+        class Cell {
+            constructor(elem, chars, row, col, clickFunc) {
+                this.chars = chars;
+                this.row = row;
+                this.col = col;
+                this.charIndex = Math.floor(Math.random() * this.chars.length);
+
+                this.elem = document.createElement("div");
+                this.elem.classList.add("Cell");
+                elem.appendChild(this.elem);
+                this.elem.innerHTML = this.chars[this.charIndex]
+                this.elem.addEventListener("mousedown", () => { clickFunc(this) });
+            }
+            nextState() {
+                if (this.charIndex == this.chars.length - 1) {
+                    this.charIndex = 0;
+                } else {
+                    this.charIndex++;
+                }
+                this.elem.innerHTML = this.chars[this.charIndex];
+            }
+            prevState() {
+                if (this.charIndex == 0) {
+                    this.charIndex = this.chars.length - 1;
+                } else {
+                    this.charIndex--;
+                }
+                this.elem.innerHTML = this.chars[this.charIndex];
+            }
+            select() {
+                this.elem.classList.add("Cell_sel");
+            }
+            unselect() {
+                this.elem.classList.remove("Cell_sel");
+            }
+        }
+
+
+        class Board {
+            constructor(elem, rows, cols) {
+                this.elem = document.createElement("div");
+                this.elem.classList.add("Board");
+                elem.appendChild(this.elem);
+                this.cells = Array(rows).fill(0).map(x => Array(cols).fill(0))
+
+                this.timeout = undefined;
+
+                for (var i = 0; i < rows; i++) {
+                    var row = document.createElement("div");
+                    row.classList.add("Row");
+
+                    for (var j = 0; j < cols; j++) {
+                        var cell = new Cell(row, ['A', 'B', 'C', 'D'], i, j, this.clickFunc.bind(this));
+                        this.cells[i][j] = cell;
+                    }
+
+                    this.elem.appendChild(row);
+                }
+            }
+
+            clickFunc(cell) {
+                if (this.timeout != undefined) {
+                    return;
+                }
+
+                this.selCol(cell.col);
+                this.selRow(cell.row);
+
+                this.timeout = setTimeout(() => {
+                    this.unselCol(cell.col);
+                    this.unselRow(cell.row);
+                    this.changeCol(cell.col);
+                    this.changeRow(cell.row);
+                    cell.prevState();
+                    this.timeout = undefined;
+                }, 1000);
+            }
+
+            selRow(row) {
+                this.cells[row].map(cell => {
+                    cell.select();
+                })
+            }
+            selCol(col) {
+                this.cells.map(row => {
+                    row.map(cell => {
+                        if (cell.col == col) {
+                            cell.select();
+                        }
+                    });
+                });
+            }
+            unselRow(row) {
+                this.cells[row].map(cell => {
+                    cell.unselect();
+                })
+            }
+            unselCol(col) {
+                this.cells.map(row => {
+                    row.map(cell => {
+                        if (cell.col == col) {
+                            cell.unselect();
+                        }
+                    });
+                });
+            }
+            changeRow(row) {
+                this.cells[row].map(cell => {
+                    cell.nextState();
+                })
+            }
+            changeCol(col) {
+                this.cells.map(row => {
+                    row.map(cell => {
+                        if (cell.col == col) {
+                            cell.nextState();
+                        }
+                    });
+                });
+            }
+        }
+    </script>
+</head>
+
+<body>
+
+    <script>
+        console.log('Začíname!');
+
+
+        var board = new Board(document.body, 5, 6);
+
+
+        console.log('Končíme!')
+    </script>
+
+</body>
+
+</html>

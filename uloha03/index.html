@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <title>Úloha č.3</title>
+
+    <style>
+        .Card {
+            flex: 0 0 auto;
+
+            width: 50px;
+            height: 50px;
+            vertical-align: center;
+            text-align: center;
+            border: 1px solid black;
+            border-radius: 5px;
+            font-size: 30px;
+            font-weight: bold;
+            font-family: Arial;
+            line-height: 50px;
+            margin: 0px 3px;
+        }
+
+
+        .Game {
+            display: flex;
+            flex-direction: column;
+
+            height: 150px;
+        }
+
+        .Game_head {
+            flex: 0 0 auto;
+
+            display: flex;
+            justify-content: center;
+
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .Game_cards {
+            flex: 1 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .Game_foot {
+            flex: 0 0 auto;
+
+            display: flex;
+            justify-content: center;
+        }
+
+        .Game_head span {
+            flex: 0 0 auto;
+        }
+
+        .Game_num1,
+        .Game_num2 {
+            padding: 0px 10px;
+        }
+
+        .Game_button {
+            flex: 0 0 auto;
+
+            text-align: center;
+            font-size: 20px;
+            line-height: 30px;
+            border: 1px outset black;
+            border-radius: 5px;
+            box-shadow: 1px 1px 3px black;
+            cursor: pointer;
+            margin: 5px;
+            font-weight: normal;
+            background-color: rgb(177, 177, 177);
+
+            -webkit-user-select: none;
+            /* Safari 3.1+ */
+            -moz-user-select: none;
+            /* Firefox 2+ */
+            -ms-user-select: none;
+            /* IE 10+ */
+            user-select: none;
+            /* Standard syntax */
+        }
+
+        .Game_button:hover {
+            background-color: rgb(226, 226, 226);
+        }
+
+        .Game_button_sel {
+            position: relative;
+            left: 1px;
+            top: 1px;
+            box-shadow: none;
+        }
+    </style>
+    <script>
+        class Card {
+            constructor() {
+                var ro = this.root = document.createElement('div');
+                ro.classList.add('Card');
+
+                this.colors = ['yellow', 'red'];
+                this.setState(0);
+            }
+            setValue(c) {
+                this.root.innerHTML = c;
+                return this;
+            }
+            setState(s) {
+                if (s < 0 || s >= this.colors.length) s = 0;
+                this.root.style.backgroundColor = this.colors[s];
+                return this;
+            }
+        }
+
+
+        class Game {
+            constructor(elem) {
+
+                var self = this;
+                this.elems = {};
+
+                var ro = this.root = document.createElement('div');
+                ro.classList.add('Game');
+                elem.appendChild(ro);
+
+                var el, el1;
+                this.elems.head = el = document.createElement('div');
+                el.classList.add('Game_head');
+                el.innerHTML = "<span>Round:</span><span class='Game_num1'>0</span><span>Score:</span><span class='Game_num2'>0</span>";
+                ro.appendChild(el);
+
+                this.elems.cards = el = document.createElement('div');
+                el.classList.add('Game_cards');
+                ro.appendChild(el);
+
+                el = document.createElement('div');
+                el.classList.add('Game_foot');
+                ro.appendChild(el);
+
+                this.elems.button1 = el1 = document.createElement('div');
+                el1.classList.add('Game_button');
+                el1.innerHTML = 'START';
+                el1.addEventListener('mousedown', function(e) {
+                    if (self.start !== undefined) self.start();
+                    this.classList.add('Game_button_sel')
+                });
+                el.appendChild(el1);
+
+                this.elems.button2 = el1 = document.createElement('div');
+                el1.classList.add('Game_button');
+                el1.innerHTML = 'STOP';
+                el1.addEventListener('mousedown', function(e) {
+                    if (self.stop !== undefined) self.stop();
+                    this.classList.add('Game_button_sel')
+                });
+                el.appendChild(el1);
+
+                document.addEventListener('mouseup', function(e) {
+                    self.elems.button1.classList.remove('Game_button_sel')
+                    self.elems.button2.classList.remove('Game_button_sel')
+                });
+            }
+
+            setRound(x) {
+                this.elems.head.querySelector("span.Game_num1").innerHTML = x;
+            }
+            setScore(x) {
+                this.elems.head.querySelector("span.Game_num2").innerHTML = x;
+            }
+
+
+            addCard(card) {
+                this.elems.cards.appendChild(card.root);
+            }
+            remCard(card) {
+                this.elems.cards.removeChild(card.root);
+            }
+        }
+
+        class MyCard extends Card {
+            constructor(array) {
+                super();
+                this.array = array;
+                this.value = null;
+            }
+
+            random() {
+                var rand = this.array[Math.floor(Math.random() * this.array.length)]
+                this.value = rand;
+                this.setValue(rand);
+            }
+        }
+
+        class MyGame extends Game {
+            constructor(elem, pocet) {
+                super(elem);
+                this.pocet = pocet;
+                this.cards = [];
+                this.round = 0;
+                this.score = 0;
+                this.stopped = false;
+                this.started = false;
+
+                for (var i = 0; i < pocet; i++) {
+                    var card = new MyCard([0, 1 , 2, 3, 4, 5, 6]);
+                    this.cards.push(card);
+                    this.addCard(card);
+                }
+            }
+
+            change() {
+                this.cards[Math.floor(Math.random() * this.cards.length)].random();
+            }
+
+            start() {
+                if (this.started) {
+                    return;
+                } else {
+                    this.started = true;
+                }
+
+                this.stopped = false;
+
+                this.round++;
+                this.setRound(this.round);
+
+                this.cards.forEach(card => {
+                    card.random();
+                    card.setState(0);
+                });
+
+                if (this.interval !== undefined) {
+                    clearInterval(this.interval);
+                }
+
+                this.interval = setInterval(() => {
+                    this.change();
+                }, 300);
+            }
+
+            stop() {
+                if (this.stopped) {
+                    return;
+                } else {
+                    this.stopped = true;
+                }
+
+                this.started = false;
+
+                if (this.interval !== undefined) {
+                    clearInterval(this.interval);
+                }
+
+                var counts = {};
+
+                this.cards.forEach((card, index) => {
+                    counts[card.value] = (counts[card.value] || 0) + 1;
+                });
+
+                Object.keys(counts).forEach(index => {
+                    if (counts[index] > 1) {
+                        this.score += counts[index];
+                    }
+                })
+
+                this.setScore(this.score);
+
+                this.cards.forEach(card => {
+                    if (counts[card.value] !== undefined && counts[card.value] > 1) {
+                        card.setState(1);
+                    }
+                });
+            }
+        }
+    </script>
+</head>
+
+<body>
+
+    <script>
+        console.log('Začíname!');
+
+        var game = new MyGame (document.body, 5);
+
+        console.log('Končíme!')
+    </script>
+
+</body>
+
+</html>

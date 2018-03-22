@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Cvicenie 1</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="assets/css/style.min.css">
+    <!--[if lt IE 9]>
+        <script src="assets/js/vendor/html5-3.6-respond-1.4.2.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+    <script>
+
+        EuclideDistance = (vector1, vector2) => {
+            if (vector1.length !== vector2.length) {
+                return 0;
+            }
+
+            let output = 0;
+
+            vector1.forEach((item, index) => {
+                output += Math.pow(vector1[index] - vector2[index], 2);
+            })
+
+            return Math.sqrt(output);
+        }
+
+        Norm = (vector) => {
+            size = 0;
+
+            vector.forEach(item => {
+                size += Math.pow(item, item);
+            })
+
+            return Math.sqrt(size);
+        }
+
+        Mean = (vectors) => {
+            var dimension = vectors[0].length;
+            var index = 0;
+
+            vectors.forEach(vector => {
+                if (vector.length != dimension)
+                    return 0;
+            })
+
+            return vectors.reduce((result, vector) =>  {
+                let index = 0;
+                vector.forEach(element => {
+                    result[index] += element;
+                    index++;
+                })
+
+                return result;
+            }, new Array(dimension).fill(0)).map(element => {
+                return element / vectors.length;
+            })
+        }
+
+        ReOrder = (position, vectors) => {
+            return vectors.sort((a, b) => {
+                return EuclideDistance(position, a) > EuclideDistance(position, b);
+            })
+        }
+
+        getRandomInt = (max) => {
+            return Math.floor(Math.random() * Math.floor(max));
+        }
+
+        Test = (n) => {
+            output = new Array(n).fill(Math.random(10));
+
+            console.time('map');
+
+            map = output.map(item => (item * 3));
+
+            console.timeEnd('map');
+
+            console.time('foreach');
+
+            for (var i = 0; i < n; i++) {
+                output[i] *= 3;
+            };
+
+            console.timeEnd('foreach');
+        }
+
+        console.log(EuclideDistance([1,0,0,1,1], [0,1,1,1,2]));
+        console.log(Norm ([1, 1, 1, 1]));  //2
+        console.log(Mean ([[1,1,1], [1,0,1], [0,0,1], [0,0,0]]));
+        console.log(ReOrder ([0,0,0], [[2,1,3], [1,0,0], [2,1,1]]));
+        Test (100000);    // 1426.7ms  12426.7ms)
+
+    </script>
+</body>
+
+</html>

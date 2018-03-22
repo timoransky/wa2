@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Úloha 01</title>
+
+    <style>
+        .Histogram_root {
+            display: flex;
+            flex-direction: column;
+
+            height: 400px;
+            background-color: rgb(255, 255, 212);
+            border: 2px solid black;
+        }
+
+        .Histogram_text {
+            flex: 0 0 auto;
+        }
+
+        .Histogram_graph {
+            flex: 1 0 auto;
+            display: flex;
+        }
+
+        .Histogram_col {
+            flex: 0 0 auto;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+
+            width: 20px;
+        }
+
+        .Histogram_bar {
+            flex: 0 0 auto;
+
+            background-color: blue;
+            border: 1px solid black;
+            width: 12px;
+            box-shadow: 2px 1px grey;
+        }
+
+        .Histogram_char {
+            font-size: 12pt;
+            font-weight: bold;
+
+            height: 20px;
+        }
+    </style>
+    <script>
+        class Histogram {
+            constructor(elem) {
+                var el, root;
+                this.root = root = document.createElement('div');
+                root.classList.add('Histogram_root');
+                elem.appendChild(root);
+
+                this.graph = el = document.createElement('div');
+                el.classList.add('Histogram_graph');
+                root.appendChild(el);
+
+                this.textarea = el = document.createElement('textarea');
+                el.classList.add('Histogram_text');
+                el.rows = 5;
+                el.cols = 100;
+                el.placeholder = 'Sem napíš text';
+                root.appendChild(el);
+            }
+            render(data) {
+                // data = [['a', 0.2],['x', 1.0], ...]
+
+                var el, el2;
+
+                this.graph.innerHTML = '';
+                var box = this.graph.getBoundingClientRect();
+                var scale = box.height - 30;
+
+                data.forEach(x => {
+                    el = document.createElement('div');
+                    el.classList.add('Histogram_col');
+
+                    el2 = document.createElement('div');
+                    el2.classList.add('Histogram_bar');
+                    el2.style.height = x[1] * scale + 'px';
+                    el.appendChild(el2);
+
+                    el2 = document.createElement('div');
+                    el2.classList.add('Histogram_char');
+                    el2.innerHTML = x[0];
+                    el.appendChild(el2);
+
+                    this.graph.appendChild(el);
+                });
+            }
+
+            getText() {
+                return this.textarea.value;
+            }
+        }
+
+        class MojHistogram extends Histogram {
+            constructor(...rest) {
+                super(...rest);
+                this.text = "";
+            }
+
+            make() {
+                var text = this.getText().toLowerCase();
+
+                if (text == this.text) {
+                    return
+                }
+
+                this.text = text;
+
+                var freq = {};
+
+                text.split("").forEach(char => {
+                    if (char != " " && char != "\n") {
+                        if (freq[char]) {
+                           freq[char]++;
+                        } else {
+                           freq[char] = 1;
+                        }
+                    }
+                });
+
+                var data = [];
+
+                Object.keys(freq).forEach((char, index) => {
+                    data.push([char, freq[char]/text.length]);
+                });
+
+                if (data.length > 0) {
+                    data.sort((a, b) => (a[1] < b[1]));
+                    var max = data[0][1];
+                    data.map( item => (item[1] = item[1] / max));
+                }
+?
+                this.render(data);
+            }
+        }
+    </script>
+</head>
+
+<body>
+
+    <script>
+        console.log('Začíname!');
+
+        //var graph = new Histogram(document.body);
+        // graph.render([
+        //     ['a', 0.3],
+        //     ['b', 0.9],
+        //     ['c', 1.0]
+        // ]);
+
+        var novyGraph = new MojHistogram (document.body);
+
+        setInterval(() => {
+            novyGraph.make();
+        }, 3000);
+
+        console.log('Končíme!')
+    </script>
+
+</body>
+
+</html>
